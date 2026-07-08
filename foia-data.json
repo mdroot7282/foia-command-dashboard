@@ -1,0 +1,116 @@
+{
+  "requests": [
+    {
+      "requestId": "FOIA-2026-001",
+      "requester": "Chicago Tribune",
+      "division": "DCI",
+      "subject": "Officer-involved shooting reports (Q2)",
+      "receivedDate": "2026-06-18",
+      "dueDate": "2026-07-12",
+      "status": "Open",
+      "assignedTo": "Lt. Rivera",
+      "notes": "Partial records gathered, legal review in progress."
+    },
+    {
+      "requestId": "FOIA-2026-002",
+      "requester": "WAND News",
+      "division": "DJS",
+      "subject": "State fair incident summaries",
+      "receivedDate": "2026-06-20",
+      "dueDate": "2026-07-08",
+      "status": "Open",
+      "assignedTo": "Sgt. Patel",
+      "notes": "Awaiting final incident narrative from district command."
+    },
+    {
+      "requestId": "FOIA-2026-003",
+      "requester": "Springfield Journal",
+      "division": "DOP",
+      "subject": "Traffic stop bodycam retention policy",
+      "receivedDate": "2026-06-11",
+      "dueDate": "2026-07-05",
+      "status": "Open",
+      "assignedTo": "Capt. Evans",
+      "notes": "Overdue. Extension request draft prepared."
+    },
+    {
+      "requestId": "FOIA-2026-004",
+      "requester": "Public Records Portal",
+      "division": "DII",
+      "subject": "Cybercrime unit annual staffing totals",
+      "receivedDate": "2026-06-28",
+      "dueDate": "2026-07-17",
+      "status": "Open",
+      "assignedTo": "Analyst Moore",
+      "notes": "Data validation with finance section pending."
+    },
+    {
+      "requestId": "FOIA-2026-005",
+      "requester": "Illinois Policy Institute",
+      "division": "DFS",
+      "subject": "Forensic lab turnaround metrics",
+      "receivedDate": "2026-06-30",
+      "dueDate": "2026-07-15",
+      "status": "Open",
+      "assignedTo": "Director Collins",
+      "notes": "Compiling district-level appendices."
+    },
+    {
+      "requestId": "FOIA-2026-006",
+      "requester": "Associated Press",
+      "division": "DCI",
+      "subject": "Task force overtime expenditure by county",
+      "receivedDate": "2026-06-12",
+      "dueDate": "2026-07-01",
+      "status": "Open",
+      "assignedTo": "Lt. Rivera",
+      "notes": "Overdue. Budget office response delayed."
+    },
+    {
+      "requestId": "FOIA-2026-007",
+      "requester": "ProPublica",
+      "division": "DJS",
+      "subject": "Use-of-force training curriculum updates",
+      "receivedDate": "2026-06-05",
+      "dueDate": "2026-06-24",
+      "status": "Closed",
+      "closedDate": "2026-07-02",
+      "assignedTo": "Sgt. Patel",
+      "notes": "Released with redactions."
+    },
+    {
+      "requestId": "FOIA-2026-008",
+      "requester": "Daily Herald",
+      "division": "DOP",
+      "subject": "Vehicle pursuit policy revisions",
+      "receivedDate": "2026-05-26",
+      "dueDate": "2026-06-17",
+      "status": "Closed",
+      "closedDate": "2026-07-03",
+      "assignedTo": "Capt. Evans",
+      "notes": "Closed after legal and command approval."
+    },
+    {
+      "requestId": "FOIA-2026-009",
+      "requester": "Capitol Fax",
+      "division": "DII",
+      "subject": "Data breach notification procedures",
+      "receivedDate": "2026-06-25",
+      "dueDate": "2026-07-11",
+      "status": "Open",
+      "assignedTo": "Analyst Moore",
+      "notes": "Draft response prepared for command review."
+    },
+    {
+      "requestId": "FOIA-2026-010",
+      "requester": "Investigative News Network",
+      "division": "DFS",
+      "subject": "Backlog of toxicology case reports",
+      "receivedDate": "2026-06-16",
+      "dueDate": "2026-07-09",
+      "status": "Open",
+      "assignedTo": "Director Collins",
+      "notes": "Lab supervisors finalizing supplemental table."
+    }
+  ]
+}
