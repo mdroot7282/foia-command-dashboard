@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Illinois State Police / FOIA Command Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="agency">Illinois State Police</p>
+        <h1>FOIA Command Dashboard</h1>
+      </div>
+      <div class="header-actions">
+        <button id="darkModeToggle" type="button">Toggle Dark Mode</button>
+        <button id="presentationModeToggle" type="button">Toggle Presentation Mode</button>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <section class="main-content">
+        <section aria-label="Key performance indicators" class="kpi-grid">
+          <article class="kpi-card">
+            <h2>Total Open FOIAs</h2>
+            <p id="kpiTotalOpen">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Due in 10 Days</h2>
+            <p id="kpiDueIn10">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Due in 5 Days</h2>
+            <p id="kpiDueIn5">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Due Today</h2>
+            <p id="kpiDueToday">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Overdue</h2>
+            <p id="kpiOverdue">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Average Days Open</h2>
+            <p id="kpiAverageDaysOpen">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Closed This Month</h2>
+            <p id="kpiClosedThisMonth">0</p>
+          </article>
+          <article class="kpi-card">
+            <h2>Requests by Division</h2>
+            <p id="kpiByDivision" class="division-summary">-</p>
+          </article>
+        </section>
+
+        <section class="panel" aria-labelledby="divisionWorkloadTitle">
+          <div class="panel-header">
+            <h2 id="divisionWorkloadTitle">Division Workload</h2>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Division</th>
+                  <th>Open</th>
+                  <th>Due in 10 Days</th>
+                  <th>Overdue</th>
+                </tr>
+              </thead>
+              <tbody id="divisionWorkloadBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="upcomingDeadlinesTitle">
+          <div class="panel-header">
+            <h2 id="upcomingDeadlinesTitle">Upcoming Deadlines</h2>
+          </div>
+          <ul id="upcomingDeadlinesList" class="deadline-list"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="requestTableTitle">
+          <div class="panel-header request-panel-header">
+            <h2 id="requestTableTitle">FOIA Requests</h2>
+            <input
+              id="requestSearch"
+              type="search"
+              placeholder="Search by ID, requester, division, or subject"
+              aria-label="Search FOIA requests"
+            />
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Requester</th>
+                  <th>Division</th>
+                  <th>Subject</th>
+                  <th>Received</th>
+                  <th>Due</th>
+                  <th>Status</th>
+                  <th>Days Open</th>
+                </tr>
+              </thead>
+              <tbody id="requestTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <aside class="detail-panel" aria-labelledby="detailPanelTitle">
+        <h2 id="detailPanelTitle">Request Details</h2>
+        <div id="detailPanelContent" class="detail-content">
+          <p>Select a request to view details.</p>
+        </div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
