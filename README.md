@@ -14,7 +14,7 @@ Static prototype dashboard for Illinois State Police FOIA tracking.
 Because `app.js` loads `foia-data.json` with `fetch`, run the dashboard through a local web server:
 
 ```bash
-cd /home/runner/work/foia-command-dashboard/foia-command-dashboard
+cd foia-command-dashboard
 python3 -m http.server 8000
 ```
 
