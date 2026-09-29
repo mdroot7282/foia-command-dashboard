@@ -211,6 +211,7 @@ const elements = {
   lastUpdatedValue: document.getElementById("lastUpdatedValue")
 };
 
+const CALENDAR_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const today = startOfDay(new Date());
 let msalInstance = null;
 let liveRefreshTimerId = null;
@@ -2979,13 +2980,51 @@ function getTimePeriodRange(period) {
 }
 
 function getCustomDateRange(startValue, endValue) {
-  const start = parseDate(startValue);
-  const endDate = parseDate(endValue);
-  const end = endOfDay(endDate);
-  if (start && endDate && start > endDate) {
-    return { start: endDate, end: endOfDay(start) };
+  let startDay = parseCalendarDate(startValue);
+  let endDay = parseCalendarDate(endValue);
+
+  if (startDay && endDay && startDay > endDay) {
+    [startDay, endDay] = [endDay, startDay];
   }
-  return { start, end };
+
+  return {
+    start: startDay ? startOfDay(startDay) : null,
+    end: endDay ? capAtNow(endOfDay(endDay)) : null
+  };
+}
+
+// "YYYY-MM-DD" from <input type="date"> must be read as a local calendar date;
+// new Date(string) would parse it as UTC midnight and shift it a day backward.
+function parseCalendarDate(value) {
+  if (value instanceof Date) {
+    return startOfDay(value);
+  }
+  const text = String(value || "").trim();
+  const match = CALENDAR_DATE_PATTERN.exec(text);
+  if (!match) {
+    return parseDate(text);
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+  if (
+    Number.isNaN(date.getTime())
+    || date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+}
+
+function capAtNow(date) {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return null;
+  }
+  const now = new Date();
+  return date > now ? now : date;
 }
 
 function recordMatchesDateRange(record, start, end) {
@@ -3279,6 +3318,9 @@ function getCurrentMonthEnd() {
 function parseDate(value) {
   if (!value) {
     return null;
+  }
+  if (typeof value === "string" && CALENDAR_DATE_PATTERN.test(value.trim())) {
+    return parseCalendarDate(value);
   }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
