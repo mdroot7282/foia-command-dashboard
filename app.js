@@ -3171,7 +3171,7 @@ function countDciCompletedInReportingPeriod(records = getReportingScopeRecords()
   const customRange = getCustomDateRange(state.customStartDate, state.customEndDate);
 
   return records.filter((record) => {
-    if (!isDciCompleted(record)) {
+    if (!isOperationallyClosed(record)) {
       return false;
     }
     const closeDate = getOperationalCloseDate(record);
