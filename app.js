@@ -2388,7 +2388,7 @@ function renderKpis() {
 
 function getKpiSnapshot(records = state.scopedRecords) {
   const statusCounts = KPI_STATUS_ORDER.map((statusLabel) => countByStatus(records, statusLabel));
-  const operationallyClosedCount = records.filter((record) => isOperationallyClosed(record)).length;
+  const operationallyClosedCount = countDciCompletedInReportingPeriod();
   const pendingRedactionsCount = countPendingRedactions(records);
   const dueTodayCount = records.filter((record) => isDueToday(record)).length;
   const due5Count = records.filter((record) => isDueInFiveDays(record)).length;
@@ -2397,8 +2397,7 @@ function getKpiSnapshot(records = state.scopedRecords) {
   const avgDaysToReceive = calculateAverageDaysToReceive(records);
   const avgDaysInProgress = calculateAverageDaysInProgress(records);
 
-  const monthScopeRecords = getCurrentMonthMetricScopeRecords();
-  const receivedThisMonth = monthScopeRecords.filter((record) => isWithinMonth(getIntakeDate(record), today)).length;
+  const receivedThisMonth = countOpenedInReportingPeriod();
   const closedThisMonthScopeRecords = getClosedThisMonthScopeRecords();
   const completedThisMonth = countOperationallyClosedThisMonth(closedThisMonthScopeRecords);
 
@@ -2492,16 +2491,14 @@ function logAverageDaysToReceiveSummary(summary) {
 
 function renderWorkUnitSummary() {
   const records = state.scopedRecords;
-  const monthReference = getSelectedMonthReferenceDate();
-  const monthScopeRecords = getCurrentMonthMetricScopeRecords();
+  const reportingScopeRecords = getReportingScopeRecords();
   const unitsInScope = state.selectedWorkUnit === ALL_WORK_UNITS_OPTION
     ? buildAvailableWorkUnits(records)
     : [state.selectedWorkUnit];
 
   const rows = buildWorkUnitSummaryRows({
     records,
-    monthScopeRecords,
-    monthReference,
+    reportingScopeRecords,
     unitsInScope
   });
 
@@ -2530,7 +2527,7 @@ function renderWorkUnitSummary() {
   `).join("");
 }
 
-function buildWorkUnitSummaryRows({ records, monthScopeRecords, monthReference, unitsInScope }) {
+function buildWorkUnitSummaryRows({ records, reportingScopeRecords, unitsInScope }) {
   const statusColumns = [...KPI_STATUS_ORDER];
 
   return unitsInScope
@@ -2544,14 +2541,9 @@ function buildWorkUnitSummaryRows({ records, monthScopeRecords, monthReference, 
       const overdue = unitRecords.filter((record) => isOverdue(record)).length;
       const avgDays = calculateAverageDaysInProgress(unitRecords);
 
-      const monthUnitScope = monthScopeRecords.filter((record) => recordHasWorkUnit(record, workUnit));
-      const receivedThisMonth = monthUnitScope.filter((record) => isWithinMonth(getIntakeDate(record), monthReference)).length;
-      const completedThisMonth = monthUnitScope.filter((record) => {
-        if (!isOperationallyClosed(record)) {
-          return false;
-        }
-        return isWithinMonth(getOperationalCloseDate(record), monthReference);
-      }).length;
+      const reportingUnitScope = reportingScopeRecords.filter((record) => recordHasWorkUnit(record, workUnit));
+      const receivedThisMonth = countOpenedInReportingPeriod(reportingUnitScope);
+      const completedThisMonth = countDciCompletedInReportingPeriod(reportingUnitScope);
 
       const closedTotal = unitRecords.filter((record) => isOperationallyClosed(record)).length;
       const total = unitRecords.length;
@@ -3128,10 +3120,12 @@ function daysInProgress(record) {
   return Math.max(0, daysBetween(startDate, today));
 }
 
-function getCurrentMonthMetricScopeRecords() {
-  const periodRange = getTimePeriodRange(state.selectedTimePeriod);
-  const customRange = getCustomDateRange(state.customStartDate, state.customEndDate);
+function getClosedThisMonthScopeRecords() {
+  return state.scopedRecords;
+}
 
+// Each KPI owns its date field, so the Status filter can never swap DCI Received for Date Closed.
+function getReportingScopeRecords() {
   return state.records.filter((record) => {
     if (state.selectedWorkUnit !== ALL_WORK_UNITS_OPTION && !recordHasWorkUnit(record, state.selectedWorkUnit)) {
       return false;
@@ -3139,18 +3133,59 @@ function getCurrentMonthMetricScopeRecords() {
     if (state.selectedStatus !== ALL_STATUSES_OPTION && !statusEquals(record.status, state.selectedStatus)) {
       return false;
     }
-    if (!recordMatchesDateRange(record, periodRange.start, periodRange.end)) {
-      return false;
-    }
-    if (!recordMatchesDateRange(record, customRange.start, customRange.end)) {
-      return false;
-    }
     return true;
   });
 }
 
-function getClosedThisMonthScopeRecords() {
-  return state.scopedRecords;
+function getDciReceivedDate(record) {
+  const receivedDate = record?.received_date;
+  return receivedDate instanceof Date && !Number.isNaN(receivedDate.getTime()) ? receivedDate : null;
+}
+
+function countOpenedInReportingPeriod(records = getReportingScopeRecords()) {
+  const periodRange = getTimePeriodRange(state.selectedTimePeriod);
+  const customRange = getCustomDateRange(state.customStartDate, state.customEndDate);
+  const hasCustomRange = Boolean(customRange.start || customRange.end);
+
+  return records.filter((record) => {
+    const receivedDate = getDciReceivedDate(record);
+    if (!receivedDate) {
+      return false;
+    }
+    if (!recordMatchesDateRangeByDate(receivedDate, periodRange.start, periodRange.end)) {
+      return false;
+    }
+    if (!recordMatchesDateRangeByDate(receivedDate, customRange.start, customRange.end)) {
+      return false;
+    }
+    // Without an explicit range the card keeps its "this month" meaning.
+    if (!hasCustomRange && !isWithinMonth(receivedDate, today)) {
+      return false;
+    }
+    return true;
+  }).length;
+}
+
+function countDciCompletedInReportingPeriod(records = getReportingScopeRecords()) {
+  const periodRange = getTimePeriodRange(state.selectedTimePeriod);
+  const customRange = getCustomDateRange(state.customStartDate, state.customEndDate);
+
+  return records.filter((record) => {
+    if (!isDciCompleted(record)) {
+      return false;
+    }
+    const closeDate = getOperationalCloseDate(record);
+    if (!closeDate) {
+      return false;
+    }
+    if (!recordMatchesDateRangeByDate(closeDate, periodRange.start, periodRange.end)) {
+      return false;
+    }
+    if (!recordMatchesDateRangeByDate(closeDate, customRange.start, customRange.end)) {
+      return false;
+    }
+    return true;
+  }).length;
 }
 
 function getSelectedMonthReferenceDate() {
@@ -3987,15 +4022,13 @@ function exportExecutiveSummary() {
   const executiveSheet = createWorksheetFromRows(executiveRows, executiveColumns, "Executive Summary", usedSheetNames);
   window.XLSX.utils.book_append_sheet(workbook, executiveSheet.worksheet, executiveSheet.worksheetName);
 
-  const monthReference = getSelectedMonthReferenceDate();
-  const monthScopeRecords = getCurrentMonthMetricScopeRecords();
+  const reportingScopeRecords = getReportingScopeRecords();
   const unitsInScope = state.selectedWorkUnit === ALL_WORK_UNITS_OPTION
     ? buildAvailableWorkUnits(state.scopedRecords)
     : [state.selectedWorkUnit];
   const workUnitRows = buildWorkUnitSummaryRows({
     records: state.scopedRecords,
-    monthScopeRecords,
-    monthReference,
+    reportingScopeRecords,
     unitsInScope
   }).map((row) => ({
     workUnit: row.workUnit,
